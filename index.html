@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Congratulations Dr. Habib Rahman!</title>
+  <style>
+    body {
+      background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    .message {
+      text-align: center;
+      background: white;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      z-index: 1;
+      position: relative;
+    }
+    .message h1 {
+      font-size: 2.5em;
+      color: #2b6cb0;
+      margin: 0;
+    }
+    .message p {
+      font-size: 1.5em;
+      color: #2d3748;
+      margin-top: 20px;
+    }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+    .floating-icon {
+      position: fixed;
+      width: 48px;
+      height: 48px;
+      z-index: 0;
+      animation: bounce 8s ease-in-out infinite;
+    }
+    @keyframes bounce {
+      0% { transform: translate(0, 0); }
+      25% { transform: translate(60px, -100px) rotate(10deg); }
+      50% { transform: translate(-80px, -150px) rotate(-10deg); }
+      75% { transform: translate(60px, -80px) rotate(10deg); }
+      100% { transform: translate(0, 0); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="fireworks"></canvas>
+  <div class="message">
+    <h1>Congratulations!</h1>
+    <p>Well done on completing your medical degree, Dr. Habib Rahman!</p>
+  </div>
+
+  <!-- Working medical and graduation icons -->
+  <img src="https://img.icons8.com/color/48/stethoscope.png" class="floating-icon" style="left: 10%; top: 70%; animation-delay: 0s;">
+  <img src="https://img.icons8.com/color/48/syringe.png" class="floating-icon" style="left: 30%; top: 60%; animation-delay: 2s;">
+  <img src="https://img.icons8.com/color/48/pill.png" class="floating-icon" style="left: 70%; top: 75%; animation-delay: 1s;">
+  <img src="https://img.icons8.com/color/48/microscope.png" class="floating-icon" style="left: 90%; top: 55%; animation-delay: 3s;">
+  <img src="https://img.icons8.com/color/48/graduation-cap.png" class="floating-icon" style="left: 20%; top: 50%; animation-delay: 5s;">
+  <img src="https://img.icons8.com/color/48/diploma.png" class="floating-icon" style="left: 80%; top: 40%; animation-delay: 6s;">
+
+  <script>
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let fireworks = [];
+
+    class Firework {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height;
+        this.targetY = Math.random() * canvas.height / 2;
+        this.radius = 2;
+        this.color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+        this.velocity = - (2 + Math.random() * 3);
+        this.exploded = false;
+        this.particles = [];
+      }
+
+      update() {
+        if (!this.exploded) {
+          this.y += this.velocity;
+          if (this.y <= this.targetY) {
+            this.exploded = true;
+            this.createParticles();
+          }
+        } else {
+          this.particles.forEach(p => p.update());
+          this.particles = this.particles.filter(p => p.alpha > 0);
+        }
+      }
+
+      draw() {
+        if (!this.exploded) {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+          ctx.fillStyle = this.color;
+          ctx.fill();
+        } else {
+          this.particles.forEach(p => p.draw());
+        }
+      }
+
+      createParticles() {
+        const count = 40;
+        for (let i = 0; i < count; i++) {
+          this.particles.push(new Particle(this.x, this.y, this.color));
+        }
+      }
+    }
+
+    class Particle {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.radius = 2;
+        this.color = color;
+        this.alpha = 1;
+        this.velocityX = (Math.random() - 0.5) * 6;
+        this.velocityY = (Math.random() - 0.5) * 6;
+      }
+
+      update() {
+        this.x += this.velocityX;
+        this.y += this.velocityY;
+        this.alpha -= 0.02;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function animate() {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (Math.random() < 0.07) {
+        fireworks.push(new Firework());
+      }
+
+      fireworks.forEach(firework => {
+        firework.update();
+        firework.draw();
+      });
+
+      fireworks = fireworks.filter(fw => !fw.exploded || fw.particles.length > 0);
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
